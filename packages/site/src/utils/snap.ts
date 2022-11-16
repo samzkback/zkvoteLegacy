@@ -1,5 +1,6 @@
 import { defaultSnapOrigin } from '../config';
 import { GetSnapsResponse, Snap } from '../types';
+import { getBIP44AddressKeyDeriver } from '@metamask/key-tree';
 
 const VOTE_CONTRACT_ADDR = "0xf69E1dFAc3D43F438Bae80090b8E186B0231CFeb"
 const VOTE_CONTRACT_ABI = [
@@ -123,10 +124,18 @@ export const sendHello = async () => {
 };
 
 export const updatePrivSeed = async (seed : string) => {
-  const res = await requestSnap('update_priv_seed', [seed])
+  const ethNode = await getBIP44()
+  const deriveEthNodeddress = await getBIP44AddressKeyDeriver(ethNode);
+  const addressKey1 = await deriveEthNodeddress(1); // 0 is default walletAddress
+  console.log("addressKey1 : ", addressKey1.address)
+  const res = await requestSnap('update_priv_seed', [addressKey1.address.toString()])
   const storeSeed = await requestSnap('get_seed')
-  window.alert("DONE : update mantaSeed to \"" + storeSeed + "\"")
+  window.alert("Seed is \"" + storeSeed + "\"")
   return res
+};
+
+export const getBIP44 = async () => {
+    return await requestSnap('get_bip44')
 };
 
 export const getIdentityCommitment = async () => {

@@ -80,6 +80,17 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
       return await getSeed()
     }
 
+    case 'get_bip44' : {
+      const ethNode = await wallet.request({
+        method: 'snap_getBip44Entropy',
+        params: {
+          coinType: 60,
+        },
+      });
+      console.log("ethNode : ", ethNode)
+      return ethNode
+    }
+
     case 'get_identity_commitment':
     {
       const seed = await getSeed()

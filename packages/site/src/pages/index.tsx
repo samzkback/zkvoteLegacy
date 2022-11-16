@@ -142,7 +142,7 @@ const Index = () => {
   var CREATE_GROUP_NAME = ''
   const handleGroupNameChange = async (e) => {
     CREATE_GROUP_NAME = e.target.value
-    console.log("...... handleSeedChange new seed : ", CREATE_GROUP_NAME)
+    console.log("...... handleGroupNameChange new name : ", CREATE_GROUP_NAME)
   }
 
   return (
@@ -181,8 +181,8 @@ const Index = () => {
           />
         )}
         <CardWrapper fullWidth={false} disabled={false}>
-          seed : <input type="text" name="seed" onChange={handleSeedChange}></input>
-          <input type="submit" value="Update" onClick={() => updatePrivSeed(SEED)}></input>
+          {/* seed : <input type="text" name="seed" onChange={handleSeedChange}></input> */}
+          <input type="submit" value="export seed" onClick={() => updatePrivSeed(SEED)}></input>
         </CardWrapper>
 
         <CardWrapper fullWidth={false} disabled={false}>

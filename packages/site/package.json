@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@ethersproject/shims": "^5.7.0",
+    "@metamask/key-tree": "^6.0.0",
     "@metamask/providers": "^9.0.0",
     "@types/express": "^4.17.14",
     "atob": "^2.1.2",
