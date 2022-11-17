@@ -2,7 +2,7 @@ import { defaultSnapOrigin } from '../config';
 import { GetSnapsResponse, Snap } from '../types';
 import { getBIP44AddressKeyDeriver } from '@metamask/key-tree';
 
-const VOTE_CONTRACT_ADDR = "0xf69E1dFAc3D43F438Bae80090b8E186B0231CFeb"
+const VOTE_CONTRACT_ADDR = "0xbFF54DEA53D243E35389e3f2C7F9c148b0113104"
 const VOTE_CONTRACT_ABI = [
   "function voteStat(uint256,bytes32) returns (uint256)",
   "function GROUP_ID() returns (uint256)",
@@ -130,7 +130,8 @@ export const updatePrivSeed = async (seed : string) => {
   console.log("addressKey1 : ", addressKey1.address)
   const res = await requestSnap('update_priv_seed', [addressKey1.address.toString()])
   const storeSeed = await requestSnap('get_seed')
-  window.alert("Seed is \"" + storeSeed + "\"")
+  const identityCommitment = await getIdentityCommitment()
+  window.alert("Seed is \"" + storeSeed + "\" " + "commitment is \"" + identityCommitment + "\"")
   return res
 };
 
@@ -161,7 +162,7 @@ export const createGroup = async (name : string) => {
   console.log("window.ethereum.selectedAddress : ", window.ethereum.selectedAddress)
   // await window.ethereum.enable()
   let tx = await voteContract.createGroup(TREE_DEPTH, window.ethereum.selectedAddress)
-  const group_id = await (await voteContract.GROUP_ID()).wait()
+  const group_id = await voteContract.GROUP_ID()
   window.alert("Done : Create Group " + group_id + ", see http://localhost:4000/tx/" + tx.hash)
 }
 
