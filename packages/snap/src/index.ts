@@ -104,14 +104,16 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
       const seed = await getSeed()
       const id = new Identity(seed)
 
-      const params  = request.params as string[]
+      const params  = request.params
       const rand = BigNumber.from(Number(params[0])).toBigInt()
-
-      // TODO : from off-line backend
+      console.log("idcs : ")
+      const idcs = params[1]
+      console.log("snpa idcs : ", idcs)
       const TREE_DEPTH = 10
       const group = new Group(TREE_DEPTH)
-      group.addMembers([id.getCommitment()])
+      group.addMembers(idcs)
       const merkleProof: MerkleProof = group.generateProofOfMembership(group.indexOf(id.getCommitment()))
+      console.log("snpa merkleProof : ", merkleProof)
 
       const groupProof =  await generateGroupProof(
         id,
@@ -120,6 +122,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
         GROUP_WASM_FILE,
         GROUP_ZKEY_FILE
       )
+      console.log("snap groupProof : ", groupProof)
       return groupProof
     }
 

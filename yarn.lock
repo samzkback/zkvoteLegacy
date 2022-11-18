@@ -4551,6 +4551,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@semaphore-protocol/group@npm:^2.6.1":
+  version: 2.6.1
+  resolution: "@semaphore-protocol/group@npm:2.6.1"
+  dependencies:
+    "@zk-kit/incremental-merkle-tree": 1.0.0
+    circomlibjs: 0.0.8
+  checksum: 3a6f19603276ffbc6d88f30a835137ec512cb1b9b77f5625be892a2c998898f2fb3238b3f1287b1df4a13fa831c75c513b77ea7fe0c1c4f6a0aaaa46ce3f5338
+  languageName: node
+  linkType: hard
+
 "@semaphore-protocol/identity@npm:^2.6.0":
   version: 2.6.0
   resolution: "@semaphore-protocol/identity@npm:2.6.0"
@@ -17545,6 +17555,7 @@ __metadata:
     "@metamask/eslint-config-typescript": ^10.0.0
     "@metamask/key-tree": ^6.0.0
     "@metamask/providers": ^9.0.0
+    "@semaphore-protocol/group": ^2.6.1
     "@svgr/webpack": ^6.4.0
     "@testing-library/dom": ^8.17.1
     "@testing-library/jest-dom": ^5.16.4

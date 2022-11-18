@@ -2,9 +2,13 @@ import { defaultSnapOrigin } from '../config';
 import { GetSnapsResponse, Snap } from '../types';
 import { getBIP44AddressKeyDeriver } from '@metamask/key-tree';
 
+import { Group } from "@semaphore-protocol/group"
+
 const VOTE_CONTRACT_ADDR = "0xbFF54DEA53D243E35389e3f2C7F9c148b0113104"
+const GROUP_CONTRACT_ADDR = "0x0A7C5f090Be105EfAb0Cf6705e4f7135c267A3E9"
 const ETHERSCAN_IO = "https://goerli-optimism.etherscan.io/tx/"
 import voteJson from "../../public/Vote.json"
+import groupJson from "../../public/Group.json"
 
 
 import { FullProof as groupFullProof} from "../../prover/group/proof";
@@ -30,12 +34,15 @@ function getContract() {
   const provider = new ethers.providers.Web3Provider(window.ethereum)
   const signer = provider.getSigner(window.ethereum.selectedAddress)
   const voteContract = new ethers.Contract(VOTE_CONTRACT_ADDR, voteJson.abi, signer)
-  return voteContract
+  const groupContract = new ethers.Contract(GROUP_CONTRACT_ADDR, groupJson.abi, signer)
+  return [voteContract, groupContract]
 }
 
 let voteContract : ethers.Contract
+let groupContract : ethers.Contract
 if (typeof window !== `undefined`) {
-  voteContract = getContract()
+  voteContract = getContract()[0]
+  groupContract = getContract()[1]
 }
 
 /**
@@ -118,8 +125,7 @@ export const sendHello = async () => {
 };
 
 export const updatePrivSeed = async (seedSeeq : string) => {
-  console.log("voteJson : ", voteJson.abi)
-  await reconstrctGroupFromOnchainEvent(1)
+  await reconstrctGroupFromOnchainEvent(9)
   const ethNode = await getBIP44()
   const deriveEthNodeddress = await getBIP44AddressKeyDeriver(ethNode);
   const addressKey = await deriveEthNodeddress(Number(seedSeeq)); // 0 is default walletAddress
@@ -142,8 +148,8 @@ export const getRC = async (rand : string) => {
     return await requestSnap('get_rc', [rand])
 };
 
-export const getGroupProof = async (rand : string) => {
-    return await requestSnap('get_group_proof', [rand])
+export const getGroupProof = async (rand : string, idcs : string[]) => {
+    return await requestSnap('get_group_proof', [rand, idcs])
 };
 
 export const getSignalProof = async (rand : string, msg : string, externalNullifier : string) => {
@@ -154,9 +160,22 @@ const TREE_DEPTH = 10
 export async function reconstrctGroupFromOnchainEvent(
   group_id : number
 ) {
+  //const group = new Group(TREE_DEPTH)
+  let idcs = []
+
+  const filter = groupContract.filters.MemberAdded(group_id, null, null, null)
   const START_BLOCK = 2758972
-  const events = await voteContract.queryFilter({}, START_BLOCK)
+  const events = await groupContract.queryFilter(filter, START_BLOCK)
   console.log("events : ", events)
+  events.forEach(event => {
+    const identityCommitment = event.args[2]
+    idcs.push(identityCommitment.toBigInt().toString())
+    //group.addMembers([identityCommitment])
+  });
+  console.log("idcs : ", idcs)
+
+  //return group
+  return idcs
 }
 
 export const createGroup = async (name : string) => {
@@ -180,13 +199,17 @@ export const voteInGroup = async (group_id : number, msg : string) => {
   const rand = Math.floor(Math.random() * 1000000).toString()
   const rc = await getRC(rand)
 
-  const externalNullifier = BigNumber.from(Math.floor(Math.random() * 1000000)).toBigInt()
-  const groupProof = await getGroupProof(rand) as groupFullProof
-  let solidityGroupProof: SolidityProof = packToSolidityProof(groupProof.proof) as SolidityProof
+  //const group = await reconstrctGroupFromOnchainEvent(group_id)
+  const idcs = await reconstrctGroupFromOnchainEvent(group_id)
+  const identityCommitment = await getIdentityCommitment()
+  //const merkleProof: MerkleProof = group.generateProofOfMembership(group.indexOf(identityCommitment))
 
-  let soliditySignalProof: SolidityProof
+  const groupProof = await getGroupProof(rand, idcs) as groupFullProof
+  const solidityGroupProof: SolidityProof = packToSolidityProof(groupProof.proof) as SolidityProof
+
+  const externalNullifier = BigNumber.from(Math.floor(Math.random() * 1000000)).toBigInt()
   const signalProof = await getSignalProof(rand, msg, externalNullifier.toString()) as signalFullProof
-  soliditySignalProof = packToSolidityProof(signalProof.proof) as SolidityProof
+  const soliditySignalProof : SolidityProof = packToSolidityProof(signalProof.proof) as SolidityProof
 
   window.alert("ZKP Generated!!! Start Verify on-chain ")
 

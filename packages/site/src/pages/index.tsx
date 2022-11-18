@@ -130,10 +130,8 @@ const Index = () => {
   };
 
   var SEED_SEQ = '1'
-  const GROUP_ID = 4
+  const GROUP_ID = 10
   var CUR_GROUP_ID = 1
-  const GROUP_ID_DEFAULT_1 = 23
-  const GROUP_ID_DEFAULT_2 = GROUP_ID_DEFAULT_1 + 1
   var PROPOSOAL_MSG = ""
 
   const handleSeedChange = async (e) => {
@@ -183,7 +181,7 @@ const Index = () => {
           />
         )}
         <CardWrapper fullWidth={false} disabled={false}>
-          {/* seed sequence : <input type="text" name="seed" onChange={handleSeedChange}></input> */}
+          seed sequence : <input type="text" name="seed" onChange={handleSeedChange}></input>
           <input type="submit" value="export seed" onClick={() => updatePrivSeed(SEED_SEQ)}></input>
         </CardWrapper>
 
