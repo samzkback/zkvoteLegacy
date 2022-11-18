@@ -3,14 +3,8 @@ import { GetSnapsResponse, Snap } from '../types';
 import { getBIP44AddressKeyDeriver } from '@metamask/key-tree';
 
 const VOTE_CONTRACT_ADDR = "0xbFF54DEA53D243E35389e3f2C7F9c148b0113104"
-const VOTE_CONTRACT_ABI = [
-  "function voteStat(uint256,bytes32) returns (uint256)",
-  "function GROUP_ID() returns (uint256)",
-  "function createGroup(uint256 merkleTreeDepth,address admin) returns (uint256)",
-  "function addMember(uint256 groupId,uint256 identityCommitment)",
-  "function vote(uint256 rc,uint256 groupId,uint256[8] group_proof,bytes32 voteMsg,uint256 nullifierHash,uint256 externalNullifier,uint256[8] signal_proof)",
-]
 const ETHERSCAN_IO = "https://goerli-optimism.etherscan.io/tx/"
+import voteJson from "../../public/Vote.json"
 
 
 import { FullProof as groupFullProof} from "../../prover/group/proof";
@@ -35,7 +29,7 @@ import { BigNumber, ethers } from 'ethers';
 function getContract() {
   const provider = new ethers.providers.Web3Provider(window.ethereum)
   const signer = provider.getSigner(window.ethereum.selectedAddress)
-  const voteContract = new ethers.Contract(VOTE_CONTRACT_ADDR, VOTE_CONTRACT_ABI, signer)
+  const voteContract = new ethers.Contract(VOTE_CONTRACT_ADDR, voteJson.abi, signer)
   return voteContract
 }
 
@@ -124,6 +118,8 @@ export const sendHello = async () => {
 };
 
 export const updatePrivSeed = async (seedSeeq : string) => {
+  console.log("voteJson : ", voteJson.abi)
+  await reconstrctGroupFromOnchainEvent(1)
   const ethNode = await getBIP44()
   const deriveEthNodeddress = await getBIP44AddressKeyDeriver(ethNode);
   const addressKey = await deriveEthNodeddress(Number(seedSeeq)); // 0 is default walletAddress
@@ -155,13 +151,19 @@ export const getSignalProof = async (rand : string, msg : string, externalNullif
 };
 
 const TREE_DEPTH = 10
+export async function reconstrctGroupFromOnchainEvent(
+  group_id : number
+) {
+  const START_BLOCK = 2758972
+  const events = await voteContract.queryFilter({}, START_BLOCK)
+  console.log("events : ", events)
+}
+
 export const createGroup = async (name : string) => {
   window.alert("Start : Create Group ")
   // await window.ethereum.enable()
   let tx = await voteContract.createGroup(TREE_DEPTH, window.ethereum.selectedAddress)
-  //const group_id = await (await voteContract.GROUP_ID()).wait()
-  const group_id = 1
-  console.log("group_id : ", group_id)
+  const group_id = await voteContract.callStatic.GROUP_ID()
   window.alert("Done : Create Group " + group_id + ", see " + ETHERSCAN_IO  + tx.hash)
 }
 

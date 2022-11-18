@@ -129,7 +129,9 @@ const Index = () => {
     }
   };
 
-  var SEED_SEQ = '0'
+  var SEED_SEQ = '1'
+  const GROUP_ID = 4
+  var CUR_GROUP_ID = 1
   const GROUP_ID_DEFAULT_1 = 23
   const GROUP_ID_DEFAULT_2 = GROUP_ID_DEFAULT_1 + 1
   var PROPOSOAL_MSG = ""
@@ -181,7 +183,7 @@ const Index = () => {
           />
         )}
         <CardWrapper fullWidth={false} disabled={false}>
-          seed sequence : <input type="text" name="seed" onChange={handleSeedChange}></input>
+          {/* seed sequence : <input type="text" name="seed" onChange={handleSeedChange}></input> */}
           <input type="submit" value="export seed" onClick={() => updatePrivSeed(SEED_SEQ)}></input>
         </CardWrapper>
 
@@ -191,22 +193,22 @@ const Index = () => {
         </CardWrapper>
 
         <CardWrapper fullWidth={false} disabled={false}>
-          <input type="radio" id="basketball" name="group name"  onClick={() => {}}></input>
-          <label for="basketball"> basketball</label><br></br>
-          <input type="radio" id="football" name="group name" onClick={() => {}}></input>
+          <input type="radio" id="" name="group name"  onClick={() => {CUR_GROUP_ID = GROUP_ID}}></input>
           <label for="football"> football</label><br></br>
-          <button onClick={() => addMember(1)}> Join Group V2</button>
+          <input type="radio" id="basketball" name="group name" onClick={() => {CUR_GROUP_ID = GROUP_ID + 1}}></input>
+          <label for="basketball"> basketball</label><br></br>
+          <button onClick={() => addMember(CUR_GROUP_ID)}> Join Group V2</button>
         </CardWrapper>
 
         <CardWrapper fullWidth={false} disabled={false}>
           <Title> World Cup 2022</Title>
-          <input type="radio" name="proposal2"  onClick={() => {PROPOSOAL_MSG = "Brazil"}}></input>
+          <input type="radio" name="proposal2"  onClick={() => {PROPOSOAL_MSG = "Brazil"; CUR_GROUP_ID = GROUP_ID}}></input>
           <label for="Brazil"> Brazil  (60%, 3/5)</label><br></br>
-          <input type="radio" name="proposal2"  onClick={() => {PROPOSOAL_MSG = "France"}}></input>
+          <input type="radio" name="proposal2"  onClick={() => {PROPOSOAL_MSG = "France"; CUR_GROUP_ID = GROUP_ID + 1}}></input>
           <label for="France"> France</label><br></br>
-          <input type="radio" name="proposal2"  onClick={() => {PROPOSOAL_MSG = "Other"}}></input>
+          <input type="radio" name="proposal2"  onClick={() => {PROPOSOAL_MSG = "Other"; CUR_GROUP_ID = GROUP_ID + 2}}></input>
           <label for="Other"> Other</label><br></br>
-          <button onClick={() => voteInGroup(1, PROPOSOAL_MSG)}> Vote</button>
+          <button onClick={() => voteInGroup(CUR_GROUP_ID, PROPOSOAL_MSG)}> Vote</button>
         </CardWrapper>
 
       </CardContainer>

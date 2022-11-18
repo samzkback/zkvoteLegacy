@@ -3,7 +3,6 @@ dist/
 build/
 coverage/
 .cache/
-public/
 
 # Logs
 logs
@@ -75,3 +74,5 @@ node_modules/
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+packages/site/public/~partytown
