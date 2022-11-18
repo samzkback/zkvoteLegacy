@@ -129,14 +129,14 @@ const Index = () => {
     }
   };
 
-  var SEED = 'identity'
+  var SEED_SEQ = '0'
   const GROUP_ID_DEFAULT_1 = 23
   const GROUP_ID_DEFAULT_2 = GROUP_ID_DEFAULT_1 + 1
   var PROPOSOAL_MSG = ""
 
   const handleSeedChange = async (e) => {
-    SEED = e.target.value
-    console.log("...... handleSeedChange new seed : ", SEED)
+    SEED_SEQ = e.target.value
+    console.log("...... handleSeedChange new seed : ", SEED_SEQ)
   }
 
   var CREATE_GROUP_NAME = ''
@@ -181,8 +181,8 @@ const Index = () => {
           />
         )}
         <CardWrapper fullWidth={false} disabled={false}>
-          {/* seed : <input type="text" name="seed" onChange={handleSeedChange}></input> */}
-          <input type="submit" value="export seed" onClick={() => updatePrivSeed(SEED)}></input>
+          seed sequence : <input type="text" name="seed" onChange={handleSeedChange}></input>
+          <input type="submit" value="export seed" onClick={() => updatePrivSeed(SEED_SEQ)}></input>
         </CardWrapper>
 
         <CardWrapper fullWidth={false} disabled={false}>

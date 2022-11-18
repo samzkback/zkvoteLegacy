@@ -10,6 +10,7 @@ const VOTE_CONTRACT_ABI = [
   "function addMember(uint256 groupId,uint256 identityCommitment)",
   "function vote(uint256 rc,uint256 groupId,uint256[8] group_proof,bytes32 voteMsg,uint256 nullifierHash,uint256 externalNullifier,uint256[8] signal_proof)",
 ]
+const ETHERSCAN_IO = "https://goerli-optimism.etherscan.io/tx/"
 
 
 import { FullProof as groupFullProof} from "../../prover/group/proof";
@@ -102,7 +103,6 @@ export function requestSnap(
     method: string,
     params?: unknown[],
 ): Promise<unknown> {
-  console.log("requestSnap ", method)
     const result = window.ethereum.request({
       method : "wallet_invokeSnap",
       params : [
@@ -123,12 +123,11 @@ export const sendHello = async () => {
   return await requestSnap('hello')
 };
 
-export const updatePrivSeed = async (seed : string) => {
+export const updatePrivSeed = async (seedSeeq : string) => {
   const ethNode = await getBIP44()
   const deriveEthNodeddress = await getBIP44AddressKeyDeriver(ethNode);
-  const addressKey1 = await deriveEthNodeddress(1); // 0 is default walletAddress
-  console.log("addressKey1 : ", addressKey1.address)
-  const res = await requestSnap('update_priv_seed', [addressKey1.address.toString()])
+  const addressKey = await deriveEthNodeddress(Number(seedSeeq)); // 0 is default walletAddress
+  const res = await requestSnap('update_priv_seed', [addressKey.address.toString()])
   const storeSeed = await requestSnap('get_seed')
   const identityCommitment = await getIdentityCommitment()
   window.alert("Seed is \"" + storeSeed + "\" " + "commitment is \"" + identityCommitment + "\"")
@@ -152,44 +151,40 @@ export const getGroupProof = async (rand : string) => {
 };
 
 export const getSignalProof = async (rand : string, msg : string, externalNullifier : string) => {
-  console.log("111111 getSignalProof....")
     return await requestSnap('get_signal_proof', [rand, msg, externalNullifier])
 };
 
 const TREE_DEPTH = 10
 export const createGroup = async (name : string) => {
   window.alert("Start : Create Group ")
-  console.log("window.ethereum.selectedAddress : ", window.ethereum.selectedAddress)
   // await window.ethereum.enable()
   let tx = await voteContract.createGroup(TREE_DEPTH, window.ethereum.selectedAddress)
-  const group_id = await voteContract.GROUP_ID()
-  window.alert("Done : Create Group " + group_id + ", see http://localhost:4000/tx/" + tx.hash)
+  //const group_id = await (await voteContract.GROUP_ID()).wait()
+  const group_id = 1
+  console.log("group_id : ", group_id)
+  window.alert("Done : Create Group " + group_id + ", see " + ETHERSCAN_IO  + tx.hash)
 }
 
 export const addMember = async (group_id : number) => {
-  //group_id = await voteContract.GROUP_ID() - 1
   const identityCommitment = await getIdentityCommitment()
   window.alert("Start : add Memeber " + identityCommitment + " in Group " + group_id)
   let tx = await voteContract.addMember(group_id, identityCommitment, {gasLimit : 1000000})
-  window.alert("Done : Add Memeber " + identityCommitment + " In  Group " + group_id + ", see http://localhost:4000/tx/" + tx.hash)
+  window.alert("Done : Add Memeber " + identityCommitment + " In  Group " + group_id + ", see " + ETHERSCAN_IO + tx.hash)
 }
 
 export const voteInGroup = async (group_id : number, msg : string) => {
   window.alert("Start : vote \"" + msg + "\" in Group " + group_id )
 
-  // TODO : keep rand in snap
-  const rand = Number(123456).toString()
+  const rand = Math.floor(Math.random() * 1000000).toString()
   const rc = await getRC(rand)
-  console.log("rc : ", rc)
 
-  const externalNullifier = BigNumber.from(Math.floor(Math.random() * 100000)).toBigInt()
+  const externalNullifier = BigNumber.from(Math.floor(Math.random() * 1000000)).toBigInt()
   const groupProof = await getGroupProof(rand) as groupFullProof
   let solidityGroupProof: SolidityProof = packToSolidityProof(groupProof.proof) as SolidityProof
-  console.log("groupProof Done...")
+
   let soliditySignalProof: SolidityProof
   const signalProof = await getSignalProof(rand, msg, externalNullifier.toString()) as signalFullProof
   soliditySignalProof = packToSolidityProof(signalProof.proof) as SolidityProof
-  console.log("signalProof Done...")
 
   window.alert("ZKP Generated!!! Start Verify on-chain ")
 
@@ -200,10 +195,8 @@ export const voteInGroup = async (group_id : number, msg : string) => {
     signalProof.publicSignals.nullifierHash,
     externalNullifier,
     soliditySignalProof,
-    {gasLimit : 10000000}
-    )
+    {gasLimit : 10000000})
   
-  console.log("voteInGroup tx : ", tx)
-  window.alert("Done  : vote \"" + msg + "\" in Group " + group_id + ", see http://localhost:4000/tx/" + tx.hash)
+  window.alert("Done  : vote \"" + msg + "\" in Group " + group_id + ", see " + ETHERSCAN_IO + tx.hash)
 }
 

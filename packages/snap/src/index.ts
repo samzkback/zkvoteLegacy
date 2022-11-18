@@ -101,7 +101,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ origin, request }) => 
 
     case 'get_group_proof':
     {
-      console.log("get_group_proof begin ...")
       const seed = await getSeed()
       const id = new Identity(seed)
 
